@@ -1,0 +1,31 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+env/
+*.env
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/project settings
+.vscode/
+.idea/
+*.swp
+
+# SimConnect artifacts (just in case)
+*.dll
+*.lib
+*.pdb
+
+# Compiled executables (if you use PyInstaller later)
+dist/
+build/
+*.spec
