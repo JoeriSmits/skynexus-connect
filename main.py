@@ -1,20 +1,31 @@
-import time
-from tracker.simconnect_client import SimConnectClient
-from tracker.flight_tracker import FlightTracker
+import logging
+from time import sleep
+from sim.sim_connect import get_mobiflight_interface
+from sim.lvar_tracker import register_lvar, get_lvar
+from sim.lvar_control import set_lvar
+
+def setup_logging():
+    log_format = "%(asctime)s [%(levelname)-5s] %(message)s"
+    logging.basicConfig(level=logging.INFO, format=log_format)
 
 def main():
-    print("[SKYNEXUS TRACKER] Connecting to MSFS...")
-    sim = SimConnectClient()
-    tracker = FlightTracker(sim)
+    setup_logging()
 
-    print("[SKYNEXUS TRACKER] Ready. Waiting for engine start...\n")
-    while True:
-        try:
-            tracker.tick()
-            time.sleep(2)
-        except Exception as e:
-            print("[ERROR]", e)
-            time.sleep(5)
+    vr = get_mobiflight_interface()
+
+    var = "L:var_engineDamage_L"
+    new_value = 42
+
+    print(f"🔄 Registering {var}...")
+    register_lvar(vr, var)
+    initial = get_lvar(vr, var)
+    print(f"📊 Before: {initial}")
+
+    set_lvar(vr, var, new_value)
+    sleep(0.3)
+
+    updated = get_lvar(vr, var)
+    print(f"✅ After:  {updated}")
 
 if __name__ == "__main__":
     main()
