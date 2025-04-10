@@ -1,71 +1,17 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+// active-contract.tsx
 import { IconAlertTriangleFilled, IconRefresh } from "@tabler/icons-react";
-import { Card, CardContent } from "@/components/ui/card"; // Example UI components
 import { Skeleton } from "@/components/ui/skeleton";
 import { ContractCard } from "./contract-card";
-
-type Airport = {
-  icao: string;
-  name: string;
-  cover_image_url: string | null;
-};
-
-type Aircraft = {
-  type: string;
-  tail_number: string;
-  cover_image_url: string | null;
-};
-
-type Contract = {
-  id: string;
-  from_airport: Airport;
-  to_airport: Airport;
-  aircraft_id: Aircraft;
-  payload: string;
-  payout: number;
-  deadline: string;
-  status: string;
-  name: string;
-  description: string;
-};
+import { Contract } from "@/types/contract";
 
 type Props = {
-  userId: string;
+  contract: Contract | null;
+  loading: boolean;
+  error: string | null;
+  onRefresh: () => void;
 };
 
-export default function ActiveContract({ userId }: Props) {
-  const [contract, setContract] = useState<Contract | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchActiveContract = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { data, error } = await supabase
-        .from("contracts")
-        .select("*, from_airport(*), to_airport(*), aircraft_id(*)")
-        .eq("assigned_to", userId)
-        .eq("status", "assigned")
-        .limit(1)
-        .single();
-
-      if (error) throw new Error(error.message);
-      setContract(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unexpected error.");
-      setContract(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchActiveContract();
-  }, [userId]);
-
+export default function ActiveContract({ contract, loading, error, onRefresh }: Props) {
   if (loading) {
     return (
       <div className="space-y-4">
@@ -88,7 +34,7 @@ export default function ActiveContract({ userId }: Props) {
           </div>
         </div>
         <button
-          onClick={fetchActiveContract}
+          onClick={onRefresh}
           className="ml-4 p-2 text-xl text-primary hover:text-primary/90 transition-all cursor-pointer"
         >
           <IconRefresh />
@@ -97,7 +43,5 @@ export default function ActiveContract({ userId }: Props) {
     );
   }
 
-  return (
-    <ContractCard contract={contract} onRefresh={fetchActiveContract} />
-  );
+  return <ContractCard contract={contract} onRefresh={onRefresh} />;
 }
