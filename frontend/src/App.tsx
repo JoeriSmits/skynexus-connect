@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Login from './components/login'
 import UserPanel from './components/user-panel'
 import { supabase } from './lib/supabase'
+import Dashboard from './dashboard'
 
 function App() {
   const [status, setStatus] = useState<string>('Loading...')
@@ -54,21 +55,7 @@ function App() {
     )
   }
 
-  return (
-    <div className="min-h-screen bg-background text-foreground px-4 py-8">
-      <div className="max-w-2xl mx-auto space-y-6">
-        <header className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">SkyNexus Connector</h1>
-          <UserPanel user={user} onLogout={handleLogout} />
-        </header>
-        <section className="rounded-lg border p-4 bg-muted">
-          <p className="text-sm text-muted-foreground">
-            Status: <span className="font-medium">{status}</span>
-          </p>
-        </section>
-      </div>
-    </div>
-  )
+  return <Dashboard user={user} onLogout={handleLogout} />
 }
 
 export default App

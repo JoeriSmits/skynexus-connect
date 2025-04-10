@@ -1,30 +1,41 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
+
 type Props = {
-  user: any
-  onLogout: () => void
-}
+  user: any;
+  onLogout: () => void;
+};
 
 export default function UserPanel({ user, onLogout }: Props) {
-    return (
-      <div className="space-y-4 bg-card p-6 rounded-xl shadow-md">
-        <h2 className="text-2xl font-semibold text-primary">Welcome back, {user?.user_metadata?.full_name || 'User'}!</h2>
-        
-        <div className="space-y-2">
-          <p className="text-lg">
-            <strong>Email:</strong> {user?.email}
-          </p>
-          <p className="text-lg">
-            <strong>Joined:</strong> {new Date(user?.created_at).toLocaleDateString()}
-          </p>
-        </div>
-        
-        <div className="flex justify-end">
-          <button
-            onClick={onLogout}
-            className="px-6 py-2 bg-destructive text-white rounded-md hover:bg-destructive/90 transition-all"
-          >
-            Log out
-          </button>
-        </div>
-      </div>
-    )
+  const name = user?.user_metadata?.full_name || "User";
+  const initials = name
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .toUpperCase();
+
+  return (
+    <div className="flex items-center gap-3">
+      <Avatar className="w-10 h-10">
+        <AvatarImage
+          src={user?.user_metadata?.avatar_url || undefined}
+          alt={name}
+        />
+        <AvatarFallback>{initials}</AvatarFallback>
+      </Avatar>
+
+      <p className="text-sm font-medium">Welcome back, {name.split(" ")[0]}!</p>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={onLogout}
+        className="text-muted-foreground hover:text-destructive cursor-pointer"
+        title="Log out"
+      >
+        <LogOut size={18} />
+      </Button>
+    </div>
+  );
 }
