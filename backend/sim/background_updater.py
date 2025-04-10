@@ -14,34 +14,65 @@ tracked_vars = {
     "fuel": "(A:FUEL TOTAL QUANTITY,Gallons)"
 }
 
+from datetime import datetime
+
 def fetch_aircraft_data(vr):
     print("📡 Background updater started.")
 
     while True:
         try:
-            lat = vr.get(tracked_vars["lat"])  # already in degrees
-            lon = vr.get(tracked_vars["lon"])  # already in degrees
+            lat = vr.get(tracked_vars["lat"])
+            lon = vr.get(tracked_vars["lon"]) 
             rpm = vr.get(tracked_vars["rpm"])
-            fuel = vr.get(tracked_vars["fuel"])
+            fuel_gal = vr.get(tracked_vars["fuel"])
+            fuel_liters = fuel_gal * 3.78541
 
-            print(f"🌍 lat: {lat}, lon: {lon} | ⛽ fuel: {fuel} | RPM: {rpm}")
+            block_time = 0.0
+            fuel_used = 0.0
 
+            # Start flight
+            if rpm > 100 and not simulator_state.tracking_active:
+                simulator_state.start_time = datetime.utcnow()
+                simulator_state.start_fuel = fuel_liters
+                simulator_state.tracking_active = True
+                print(f"🟢 Flight started at {simulator_state.start_time}, fuel: {fuel_liters:.2f} L")
+
+            # End flight
+            elif rpm <= 100 and simulator_state.tracking_active:
+                end_time = datetime.utcnow()
+                block_time = (end_time - simulator_state.start_time).total_seconds() / 3600
+                fuel_used = simulator_state.start_fuel - fuel_liters
+
+                print(f"✅ Flight ended. Block time: {block_time:.2f} hrs | Fuel used: {fuel_used:.2f} L")
+
+                finished_aircraft = AircraftData(
+                    lat=lat,
+                    lon=lon,
+                    rpm=rpm,
+                    fuel_liters=fuel_liters,
+                    block_time=round(block_time, 2),
+                    fuel_used=round(fuel_used, 2),
+                )
+
+                simulator_state.aircraft = finished_aircraft
+                simulator_state.last_completed_aircraft = finished_aircraft  # ✅ Save result
+
+                simulator_state.tracking_active = False
+                simulator_state.start_time = None
+                simulator_state.start_fuel = None
+
+            # Always update aircraft
             aircraft = AircraftData(
-                model="Beechcraft Duke B60",
                 lat=lat,
                 lon=lon,
                 rpm=rpm,
-                fuel_liters=fuel,
-                block_time=0.0,
-                fuel_used=0.0,
+                fuel_liters=fuel_liters,
+                block_time=round(block_time, 2),
+                fuel_used=round(fuel_used, 2),
             )
 
-            simulator_state.connected = True
             simulator_state.aircraft = aircraft
-
-            if rpm > 100:
-                simulator_state.last_rpm_over_100 = datetime.utcnow()
-
+            simulator_state.connected = True
         except Exception as e:
             simulator_state.connected = False
             simulator_state.aircraft = None

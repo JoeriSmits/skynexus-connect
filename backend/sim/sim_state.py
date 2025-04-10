@@ -1,11 +1,8 @@
-# sim/sim_state.py
-from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-
+from pydantic import BaseModel
 
 class AircraftData(BaseModel):
-    model: str
     lat: float
     lon: float
     rpm: float
@@ -13,11 +10,14 @@ class AircraftData(BaseModel):
     block_time: float
     fuel_used: float
 
-
 class SimState(BaseModel):
     connected: bool = False
     aircraft: Optional[AircraftData] = None
-    last_rpm_over_100: Optional[datetime] = None
+    last_completed_aircraft: Optional[AircraftData] = None
 
+    # Add these:
+    tracking_active: bool = False
+    start_time: Optional[datetime] = None
+    start_fuel: Optional[float] = None
 
 simulator_state = SimState()
