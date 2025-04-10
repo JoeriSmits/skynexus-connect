@@ -1,22 +1,28 @@
 import { useSimulatorStatus } from "@/hooks/use-simulator-status";
 import { Contract } from "@/types/contract";
 import StatusAlert from "./status-card";
-import { IconCircleCheck, IconMapPinOff, IconPlugConnectedX, IconPropeller } from "@tabler/icons-react";
+import { IconMapPinOff, IconPlugConnectedX, IconPropeller } from "@tabler/icons-react";
 import FlightSummaryCard from "./flight-summary-card";
+import { User } from "@supabase/supabase-js";
+import { useFlightActions } from "@/hooks/use-flight-actions";
+import { useState } from "react";
 
 type Props = {
   contract: Contract;
+  user: User | null;
 };
 
-export default function SimulatorStatusCard({ contract }: Props) {
+export default function SimulatorStatusCard({ contract, user }: Props) {
   const {
     connected,
     aircraft,
     lastFlight,
     withinRange,
     isTracking,
+    refetch,
   } = useSimulatorStatus(contract);
-
+  const [error, setError] = useState<string | null>(null);
+  const { handleFinish, handleAbort } = useFlightActions(contract, lastFlight, user, refetch, setError);
   const readyToStart = connected && withinRange && !isTracking;
 
   return (
@@ -65,8 +71,9 @@ export default function SimulatorStatusCard({ contract }: Props) {
           blockOut={lastFlight.block_out}
           blockIn={lastFlight.block_in}
           fuelUsed={lastFlight.fuel_used}
-          onFinish={() => console.log("Finish Flight")}
-          onAbort={() => console.log("Abort Flight")}
+          onFinish={handleFinish}
+          onAbort={handleAbort}
+          errorMessage={error || undefined}
         />
       )}
     </div>

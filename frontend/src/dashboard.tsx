@@ -46,7 +46,7 @@ export default function Dashboard({ user, onLogout }: Props) {
         {/* Other widgets */}
         {contract && (
           <div>
-              <SimulatorStatusCard contract={contract} />
+              <SimulatorStatusCard contract={contract} user={user} />
           </div>
         )}
       </div>

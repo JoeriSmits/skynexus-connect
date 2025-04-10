@@ -24,6 +24,11 @@ def startup_event():
 def get_status():
     return simulator_state
 
+@app.post("/abort-flight")
+def abort_flight():
+    simulator_state.last_completed_aircraft = None
+    return {"message": "Flight aborted"}
+
 @app.post("/set-initial-state")
 async def set_state(request: Request):
     data = await request.json()

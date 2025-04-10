@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Contract } from "@/types/contract";
 
-type SimAircraftData = {
+export type SimAircraftData = {
   lat: number;
   lon: number;
   rpm: number;
   fuel_liters: number;
   block_time: number;
-  block_out?: string; // ISO timestamp in UTC (e.g., "2025-04-10T12:34:56Z")
-  block_in?: string;
   fuel_used: number;
+  block_out?: string;
+  block_in?: string;
 };
 
 type SimulatorStatus = {
@@ -26,37 +26,35 @@ export function useSimulatorStatus(contract: Contract) {
   const [withinRange, setWithinRange] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
 
-  useEffect(() => {
-    const BASE_URL = "http://localhost:5000";
-  
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/simulator-status`);
-        const data: SimulatorStatus = await res.json();
-  
-        setConnected(data.connected);
-        setAircraft(data.aircraft);
-        setLastFlight(data.last_completed_aircraft);
-        setIsTracking(data.tracking_active);
-  
-        if (data.aircraft) {
-          const distance = getDistanceFromLatLonInKm(
-            contract.from_airport.lat,
-            contract.from_airport.lon,
-            data.aircraft.lat,
-            data.aircraft.lon
-          );
-          setWithinRange(distance < 30);
-        }
-      } catch (err) {
-        console.error("Failed to fetch simulator status:", err);
-        setConnected(false);
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:5000/simulator-status");
+      const data: SimulatorStatus = await res.json();
+
+      setConnected(data.connected);
+      setAircraft(data.aircraft);
+      setLastFlight(data.last_completed_aircraft);
+      setIsTracking(data.tracking_active);
+
+      if (data.aircraft) {
+        const distance = getDistanceFromLatLonInKm(
+          contract.from_airport.lat,
+          contract.from_airport.lon,
+          data.aircraft.lat,
+          data.aircraft.lon
+        );
+        setWithinRange(distance < 30);
       }
-    }, 2000);
-  
+    } catch (err) {
+      console.error("Failed to fetch simulator status:", err);
+      setConnected(false);
+    }
+  }, [contract.from_airport.lat, contract.from_airport.lon]);
+
+  useEffect(() => {
+    const interval = setInterval(fetchStatus, 2000);
     return () => clearInterval(interval);
-  }, [contract.from_airport]);
-  
+  }, [fetchStatus]);
 
   return {
     connected,
@@ -64,10 +62,10 @@ export function useSimulatorStatus(contract: Contract) {
     lastFlight,
     withinRange,
     isTracking,
+    refetch: fetchStatus, // 👈 return it here
   };
 }
 
-// Utility
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371;
   const dLat = deg2rad(lat2 - lat1);

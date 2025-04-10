@@ -5,6 +5,7 @@ type Airport = {
 };
 
 type Aircraft = {
+    id: string;
     type: string;
     tail_number: string;
     cover_image_url: string | null;

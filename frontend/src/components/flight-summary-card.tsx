@@ -8,6 +8,7 @@ interface FlightSummaryProps {
   onFinish: () => void;
   onAbort?: () => void;
   showAbort?: boolean;
+  errorMessage?: string;
 }
 
 export default function FlightSummaryCard({
@@ -18,7 +19,9 @@ export default function FlightSummaryCard({
   onFinish,
   onAbort,
   showAbort = true,
+  errorMessage,
 }: FlightSummaryProps) {
+  console.log(errorMessage);
   const formatTime = (iso?: string) =>
     iso ? new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) : "";
 
@@ -57,22 +60,32 @@ export default function FlightSummaryCard({
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-3 md:ml-6 mt-2 md:mt-0">
-        <button
-          onClick={onFinish}
-          className="inline-flex items-center justify-center rounded-md bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm font-medium transition cursor-pointer"
-        >
-          Finish Flight
-        </button>
-        {showAbort && onAbort && (
-          <button
-            onClick={onAbort}
-            className="inline-flex items-center justify-center rounded-md border border-red-600 text-red-600 hover:bg-red-50 px-4 py-2 text-sm font-medium transition cursor-pointer"
-          >
-            Abort Flight
-          </button>
+      {/* Wrap this whole right section */}
+      <div className="flex flex-col md:flex-col items-start md:items-end gap-2 md:ml-6 mt-2 md:mt-0">
+        {errorMessage && (
+          <div className="text-sm text-red-600 font-medium">
+            ⚠️ {errorMessage}
+          </div>
         )}
+
+        <div className="flex flex-col md:flex-row gap-2">
+          <button
+            onClick={onFinish}
+            className="inline-flex items-center justify-center rounded-md bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm font-medium transition cursor-pointer"
+          >
+            Finish Flight
+          </button>
+          {showAbort && onAbort && (
+            <button
+              onClick={onAbort}
+              className="inline-flex items-center justify-center rounded-md border border-red-600 text-red-600 hover:bg-red-50 px-4 py-2 text-sm font-medium transition cursor-pointer"
+            >
+              Abort Flight
+            </button>
+          )}
+        </div>
       </div>
+
     </div>
   );
 }
