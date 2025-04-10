@@ -32,34 +32,37 @@ def fetch_aircraft_data(vr):
 
             # Start flight
             if rpm > 100 and not simulator_state.tracking_active:
-                simulator_state.start_time = datetime.utcnow()
+                now = datetime.utcnow()
+                simulator_state.start_time = now
                 simulator_state.start_fuel = fuel_liters
                 simulator_state.tracking_active = True
+                simulator_state.block_out = now
                 print(f"🟢 Flight started at {simulator_state.start_time}, fuel: {fuel_liters:.2f} L")
 
             # End flight
             elif rpm <= 100 and simulator_state.tracking_active:
-                end_time = datetime.utcnow()
-                block_time = (end_time - simulator_state.start_time).total_seconds() / 3600
+                now = datetime.utcnow()
+                block_time = (now - simulator_state.start_time).total_seconds() / 3600
                 fuel_used = simulator_state.start_fuel - fuel_liters
-
-                print(f"✅ Flight ended. Block time: {block_time:.2f} hrs | Fuel used: {fuel_used:.2f} L")
-
-                finished_aircraft = AircraftData(
-                    lat=lat,
-                    lon=lon,
-                    rpm=rpm,
-                    fuel_liters=fuel_liters,
-                    block_time=round(block_time, 2),
-                    fuel_used=round(fuel_used, 2),
-                )
-
-                simulator_state.aircraft = finished_aircraft
-                simulator_state.last_completed_aircraft = finished_aircraft  # ✅ Save result
 
                 simulator_state.tracking_active = False
                 simulator_state.start_time = None
                 simulator_state.start_fuel = None
+
+                aircraft = AircraftData(
+                    lat=lat,
+                    lon=lon,
+                    rpm=rpm,
+                    fuel_liters=fuel_liters,
+                    fuel_used=round(fuel_used, 2),
+                    block_time=round(block_time, 2),
+                    block_out=simulator_state.block_out,
+                    block_in=now,
+                )
+                simulator_state.last_completed_aircraft = aircraft
+                simulator_state.aircraft = aircraft
+                simulator_state.block_out = None  # clear for next flight
+
 
             # Always update aircraft
             aircraft = AircraftData(

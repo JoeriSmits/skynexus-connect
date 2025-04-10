@@ -8,6 +8,8 @@ class AircraftData(BaseModel):
     rpm: float
     fuel_liters: float
     block_time: float
+    block_out: Optional[datetime] = None
+    block_in: Optional[datetime] = None
     fuel_used: float
 
 class SimState(BaseModel):
@@ -19,5 +21,7 @@ class SimState(BaseModel):
     tracking_active: bool = False
     start_time: Optional[datetime] = None
     start_fuel: Optional[float] = None
+    block_out: Optional[datetime] = None
+    block_in: Optional[datetime] = None
 
 simulator_state = SimState()
