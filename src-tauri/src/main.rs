@@ -12,7 +12,7 @@ fn main() {
                 #[cfg(target_os = "windows")]
                 {
                     Command::new("python")
-                        .args(["../../backend/main.py"])
+                        .args(["./backend/main.py"])
                         .spawn()
                         .expect("Failed to start Python backend");
                 }
@@ -20,7 +20,7 @@ fn main() {
                 #[cfg(not(target_os = "windows"))]
                 {
                     Command::new("python3")
-                        .args(["../../backend/main.py"])
+                        .args(["./backend/main.py"])
                         .spawn()
                         .expect("Failed to start Python backend");
                 }

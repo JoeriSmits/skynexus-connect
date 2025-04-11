@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "identifier": "nl.skynexus.app.connector",
   "build": {
-    "frontendDist": "../frontend/dist",
+    "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build"
@@ -26,6 +26,9 @@
   "bundle": {
     "active": true,
     "createUpdaterArtifacts": true,
+    "resources": [
+      "backend"
+    ],
     "targets": "all",
     "icon": [
       "icons/32x32.png",
@@ -39,7 +42,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhFMTFCMkJBQTNFQkJBRjAKUldUd3V1dWp1cklSanB0UVdVbzdqYm4zTSs3bGhubGtCZHdIUzJwblN1Z0J5L3lHVnpBK3RxS0oK",
       "endpoints": [
-        "https://gist.github.com/JoeriSmits/0b8c03792b0a7c1e4c5188da4e106b3a"
+        "https://raw.githubusercontent.com/JoeriSmits/skynexus-connect/refs/heads/master/latest.json"
       ]
     }
   }
