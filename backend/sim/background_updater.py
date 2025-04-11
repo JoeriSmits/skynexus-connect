@@ -1,7 +1,6 @@
 from threading import Thread
 from time import sleep
 from datetime import datetime
-
 from .sim_state import AircraftData, simulator_state
 from sim.connection import wait_for_vr
 
@@ -9,7 +8,9 @@ tracked_vars = {
     "lat": "(A:PLANE LATITUDE, Degrees)",
     "lon": "(A:PLANE LONGITUDE, Degrees)",
     "rpm": "(A:GENERAL ENG RPM:1, rpm)",
-    "fuel": "(A:FUEL TOTAL QUANTITY,Gallons)"
+    "fuel": "(A:FUEL TOTAL QUANTITY,Gallons)",
+    "wear_L": "(L:var_engineDamage_L)",
+    "wear_R": "(L:var_engineDamage_R)"
 }
 
 def fetch_aircraft_data(vr):
@@ -21,9 +22,17 @@ def fetch_aircraft_data(vr):
             rpm = vr.get(tracked_vars["rpm"])
             fuel_gal = vr.get(tracked_vars["fuel"])
             fuel_liters = fuel_gal * 3.78541
+            wear_L = vr.get(tracked_vars["wear_L"])
+            wear_R = vr.get(tracked_vars["wear_R"])
+
+            maintenance = {
+                "L:var_engineDamage_L": wear_L,
+                "L:var_engineDamage_R": wear_R,
+            }
 
             block_time = 0.0
             fuel_used = 0.0
+            maintenance_used = None
 
             if rpm > 100 and not simulator_state.tracking_active:
                 now = datetime.utcnow()
@@ -31,6 +40,7 @@ def fetch_aircraft_data(vr):
                 simulator_state.start_fuel = fuel_liters
                 simulator_state.tracking_active = True
                 simulator_state.block_out = now
+                simulator_state.start_maintenance = maintenance.copy()
                 print(f"🟢 Flight started at {now}, fuel: {fuel_liters:.2f} L")
 
             elif rpm <= 100 and simulator_state.tracking_active:
@@ -38,9 +48,16 @@ def fetch_aircraft_data(vr):
                 block_time = (now - simulator_state.start_time).total_seconds() / 3600
                 fuel_used = simulator_state.start_fuel - fuel_liters
 
+                # Compute maintenance diff
+                maintenance_used = {
+                    key: round(maintenance[key] - simulator_state.start_maintenance.get(key, 0.0), 2)
+                    for key in maintenance
+                }
+
                 simulator_state.tracking_active = False
                 simulator_state.start_time = None
                 simulator_state.start_fuel = None
+                simulator_state.start_maintenance = None
 
                 aircraft = AircraftData(
                     lat=lat,
@@ -51,12 +68,14 @@ def fetch_aircraft_data(vr):
                     block_time=round(block_time, 2),
                     block_out=simulator_state.block_out,
                     block_in=now,
+                    maintenance_state=maintenance,
+                    maintenance_used=maintenance_used
                 )
                 simulator_state.last_completed_aircraft = aircraft
                 simulator_state.aircraft = aircraft
                 simulator_state.block_out = None
 
-            # Always update current aircraft state
+            # Always update current state
             aircraft = AircraftData(
                 lat=lat,
                 lon=lon,
@@ -64,6 +83,7 @@ def fetch_aircraft_data(vr):
                 fuel_liters=fuel_liters,
                 block_time=round(block_time, 2),
                 fuel_used=round(fuel_used, 2),
+                maintenance_state=maintenance
             )
             simulator_state.aircraft = aircraft
             simulator_state.connected = True
@@ -76,7 +96,7 @@ def fetch_aircraft_data(vr):
 
 def start_background_updater():
     def wait_and_run():
-        vr = wait_for_vr(timeout=3600)  # Wait up to an hour
+        vr = wait_for_vr(timeout=3600)
         if vr:
             fetch_aircraft_data(vr)
         else:

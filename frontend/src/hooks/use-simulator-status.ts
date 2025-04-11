@@ -10,6 +10,12 @@ export type SimAircraftData = {
   fuel_used: number;
   block_out?: string;
   block_in?: string;
+  maintenance_state: {
+    [key: string]: number | string | undefined;
+  },
+  maintenance_used: {
+    [key: string]: number | string | undefined;
+  },
 };
 
 type SimulatorStatus = {
@@ -26,17 +32,18 @@ export function useSimulatorStatus(contract: Contract) {
   const [withinRange, setWithinRange] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
   const [hasSetFuel, setHasSetFuel] = useState(false);
+  const [hasSetMaintenance, setHasSetMaintenance] = useState(false);
 
   const fetchStatus = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:5000/simulator-status");
       const data: SimulatorStatus = await res.json();
-  
+
       setConnected(data.connected);
       setAircraft(data.aircraft);
       setLastFlight(data.last_completed_aircraft);
       setIsTracking(data.tracking_active);
-  
+
       if (data.aircraft) {
         const distance = getDistanceFromLatLonInKm(
           contract.from_airport.lat,
@@ -45,32 +52,59 @@ export function useSimulatorStatus(contract: Contract) {
           data.aircraft.lon
         );
         setWithinRange(distance < 30);
-  
-        if (
-          !lastFlight &&
-          !isTracking &&
-          !hasSetFuel &&
-          data.connected
-        ) {
+
+        // Fuel sync
+        if (!lastFlight && !isTracking && !hasSetFuel && data.connected) {
           const expectedFuel = contract.aircraft_id.fuel_liters;
           const delta = Math.abs(data.aircraft.fuel_liters - expectedFuel);
-  
           if (delta > 5) {
             await setFuelInSim(expectedFuel);
             setHasSetFuel(true);
           }
+        }
+
+        // Maintenance sync
+        const maintenance = contract.aircraft_id.aircraft_maintenance_state;
+
+        if (
+          !lastFlight &&
+          !isTracking &&
+          !hasSetMaintenance &&
+          data.connected &&
+          maintenance &&
+          typeof maintenance === "object"
+        ) {
+          let didSetAny = false;
+
+          for (const [key, expected] of Object.entries(maintenance)) {
+            const current = data.aircraft.maintenance_state[key];
+            if (typeof expected === "number" && typeof current === "number") {
+              const delta = Math.abs(current - expected);
+              if (delta > 1) {
+                await setSimVar(key, expected);
+                didSetAny = true;
+              }
+            }
+          }
+
+          if (didSetAny) setHasSetMaintenance(true);
         }
       }
     } catch (err) {
       console.error("Failed to fetch simulator status:", err);
       setConnected(false);
     }
-  }, [contract, hasSetFuel, isTracking, lastFlight]);
+  }, [contract, hasSetFuel, hasSetMaintenance, isTracking, lastFlight]);
 
-  // ✅ Reset fuel sync state when contract or aircraft changes
   useEffect(() => {
     setHasSetFuel(false);
-  }, [contract.id, contract.aircraft_id.fuel_liters, aircraft?.fuel_liters]);
+    setHasSetMaintenance(false);
+  }, [
+    contract.id,
+    contract.aircraft_id.fuel_liters,
+    contract.aircraft_id.aircraft_maintenance_state,
+    aircraft?.fuel_liters,
+  ]);
 
   useEffect(() => {
     const interval = setInterval(fetchStatus, 2000);
@@ -88,7 +122,6 @@ export function useSimulatorStatus(contract: Contract) {
 }
 
 async function setFuelInSim(liters: number) {
-  console.log(`Setting fuel to ${liters} L in sim...`);
   const gallons = liters / 3.78541;
   try {
     await fetch("http://localhost:5000/set-simvar", {
@@ -106,6 +139,19 @@ async function setFuelInSim(liters: number) {
     console.log(`✅ Set fuel to ${liters.toFixed(1)} L in sim`);
   } catch (err) {
     console.error("❌ Failed to set fuel in sim:", err);
+  }
+}
+
+async function setSimVar(variable: string, value: number) {
+  try {
+    await fetch("http://localhost:5000/set-simvar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ var: variable, value }),
+    });
+    console.log(`✅ Set ${variable} to ${value}`);
+  } catch (err) {
+    console.error(`❌ Failed to set ${variable}:`, err);
   }
 }
 

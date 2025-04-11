@@ -5,6 +5,7 @@ from sim.sim_state import simulator_state
 from sim.connection import start_connection_monitor, get_vr
 from sim.background_updater import start_background_updater
 import uvicorn
+import random
 
 app = FastAPI()
 
@@ -46,9 +47,14 @@ async def set_simvar(request: Request):
         return { "status": "error", "message": "Missing 'var' or 'value'" }
 
     try:
-        vr.set(f"{value} (> {var})")
-        print(f"{value} (> {var})")
-        return { "status": "success", "var": var, "value": value }
+        # Add a small random delta to avoid caching
+        jitter = random.uniform(-0.001, 0.001)
+        value_with_jitter = float(value) + jitter
+
+        command = f"{value_with_jitter} (> {var})"
+        vr.set(command)
+        print(command)
+        return { "status": "success", "var": var, "value": value_with_jitter }
     except Exception as e:
         return { "status": "error", "message": str(e) }
 
