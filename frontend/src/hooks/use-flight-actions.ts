@@ -60,6 +60,10 @@ export function useFlightActions(
 
     setError(null);
     refetch();
+    const frontendUrl = import.meta.env.VITE_SKYNEXUS_FRONTEND_URL;
+    if (frontendUrl) {
+      window.open(`${frontendUrl}/dashboard/contracts/${contract.id}`, "_blank");
+    }
   }, [contract, lastFlight, user, refetch, setError]);
 
   return { handleFinish, handleAbort };

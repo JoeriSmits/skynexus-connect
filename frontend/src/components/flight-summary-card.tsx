@@ -21,9 +21,8 @@ export default function FlightSummaryCard({
   showAbort = true,
   errorMessage,
 }: FlightSummaryProps) {
-  console.log(errorMessage);
   const formatTime = (iso?: string) =>
-    iso ? new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) : "";
+    iso ? new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit"}) : "";
 
   return (
     <div className="border-2 border-green-600 p-5 rounded-xl flex flex-col md:flex-row md:items-start md:justify-between text-green-700 space-y-4 md:space-y-0">
@@ -73,7 +72,7 @@ export default function FlightSummaryCard({
             onClick={onFinish}
             className="inline-flex items-center justify-center rounded-md bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm font-medium transition cursor-pointer"
           >
-            Finish Flight
+            Finish Flight & Complete Contract
           </button>
           {showAbort && onAbort && (
             <button
