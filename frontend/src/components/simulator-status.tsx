@@ -1,7 +1,7 @@
 import { useSimulatorStatus } from "@/hooks/use-simulator-status";
 import { Contract } from "@/types/contract";
 import StatusAlert from "./status-card";
-import { IconMapPinOff, IconPlugConnectedX, IconPropeller } from "@tabler/icons-react";
+import { IconGasStation, IconMapPinOff, IconPlugConnectedX, IconPropeller } from "@tabler/icons-react";
 import FlightSummaryCard from "./flight-summary-card";
 import { User } from "@supabase/supabase-js";
 import { useFlightActions } from "@/hooks/use-flight-actions";
@@ -25,6 +25,8 @@ export default function SimulatorStatusCard({ contract, user }: Props) {
   const { handleFinish, handleAbort } = useFlightActions(contract, lastFlight, user, refetch, setError);
   const readyToStart = connected && withinRange && !isTracking;
 
+  const fuelMismatch = aircraft && Math.abs(aircraft.fuel_liters - contract.aircraft_id.fuel_liters) > 5;
+
   return (
     <div className="border rounded-xl p-4 space-y-4">
       <h2 className="text-xl font-bold">Simulator Status</h2>
@@ -47,7 +49,16 @@ export default function SimulatorStatusCard({ contract, user }: Props) {
         />
       )}
 
-      {readyToStart && !lastFlight && (
+      {connected && !isTracking && !lastFlight && aircraft && fuelMismatch && (
+        <StatusAlert
+          icon={<IconGasStation className="text-xl" />}
+          color="yellow"
+          title="Fuel mismatch detected"
+          message="The aircraft fuel level does not match with that of the simulator."
+        />
+      )}
+
+      {readyToStart && !lastFlight && !fuelMismatch && (
         <StatusAlert
           icon={<IconPropeller className="text-xl" />}
           color="green"

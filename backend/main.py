@@ -34,7 +34,7 @@ def abort_flight():
 @app.post("/set-simvar")
 async def set_simvar(request: Request):
     vr = get_vr()
-    
+
     if vr is None:
         return { "status": "error", "message": "SimConnect not initialized." }
 
@@ -47,6 +47,7 @@ async def set_simvar(request: Request):
 
     try:
         vr.set(f"{value} (> {var})")
+        print(f"{value} (> {var})")
         return { "status": "success", "var": var, "value": value }
     except Exception as e:
         return { "status": "error", "message": str(e) }

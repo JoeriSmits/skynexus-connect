@@ -25,17 +25,18 @@ export function useSimulatorStatus(contract: Contract) {
   const [lastFlight, setLastFlight] = useState<SimAircraftData | null>(null);
   const [withinRange, setWithinRange] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
+  const [hasSetFuel, setHasSetFuel] = useState(false);
 
   const fetchStatus = useCallback(async () => {
     try {
       const res = await fetch("http://localhost:5000/simulator-status");
       const data: SimulatorStatus = await res.json();
-
+  
       setConnected(data.connected);
       setAircraft(data.aircraft);
       setLastFlight(data.last_completed_aircraft);
       setIsTracking(data.tracking_active);
-
+  
       if (data.aircraft) {
         const distance = getDistanceFromLatLonInKm(
           contract.from_airport.lat,
@@ -44,12 +45,32 @@ export function useSimulatorStatus(contract: Contract) {
           data.aircraft.lon
         );
         setWithinRange(distance < 30);
+  
+        if (
+          !lastFlight &&
+          !isTracking &&
+          !hasSetFuel &&
+          data.connected
+        ) {
+          const expectedFuel = contract.aircraft_id.fuel_liters;
+          const delta = Math.abs(data.aircraft.fuel_liters - expectedFuel);
+  
+          if (delta > 5) {
+            await setFuelInSim(expectedFuel);
+            setHasSetFuel(true);
+          }
+        }
       }
     } catch (err) {
       console.error("Failed to fetch simulator status:", err);
       setConnected(false);
     }
-  }, [contract.from_airport.lat, contract.from_airport.lon]);
+  }, [contract, hasSetFuel, isTracking, lastFlight]);
+
+  // ✅ Reset fuel sync state when contract or aircraft changes
+  useEffect(() => {
+    setHasSetFuel(false);
+  }, [contract.id, contract.aircraft_id.fuel_liters, aircraft?.fuel_liters]);
 
   useEffect(() => {
     const interval = setInterval(fetchStatus, 2000);
@@ -62,8 +83,30 @@ export function useSimulatorStatus(contract: Contract) {
     lastFlight,
     withinRange,
     isTracking,
-    refetch: fetchStatus, // 👈 return it here
+    refetch: fetchStatus,
   };
+}
+
+async function setFuelInSim(liters: number) {
+  console.log(`Setting fuel to ${liters} L in sim...`);
+  const gallons = liters / 3.78541;
+  try {
+    await fetch("http://localhost:5000/set-simvar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ var: "A:FUEL TANK LEFT MAIN QUANTITY,Gallons", value: gallons / 2 }),
+    });
+
+    await fetch("http://localhost:5000/set-simvar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ var: "A:FUEL TANK RIGHT MAIN QUANTITY,Gallons", value: gallons / 2 }),
+    });
+
+    console.log(`✅ Set fuel to ${liters.toFixed(1)} L in sim`);
+  } catch (err) {
+    console.error("❌ Failed to set fuel in sim:", err);
+  }
 }
 
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
