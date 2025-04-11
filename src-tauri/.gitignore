@@ -3,4 +3,4 @@
 /target/
 /gen/schemas
 
-!target/release/bundle
+!/target/release/bundle
