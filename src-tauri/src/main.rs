@@ -18,7 +18,7 @@ fn main() {
             
                 Command::new("python")
                     .args(["./backend/main.py"])
-                    .creation_flags(CREATE_NO_WINDOW)
+                    // .creation_flags(CREATE_NO_WINDOW)
                     .spawn()
                     .expect("❌ Failed to start Python backend")
             } else {
