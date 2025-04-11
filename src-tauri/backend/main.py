@@ -1,13 +1,12 @@
 # main.py
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from sim.sim_state import simulator_state
 from sim.connection import start_connection_monitor, get_vr
 from sim.background_updater import start_background_updater
 import uvicorn
 import random
-
-app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,10 +17,14 @@ app.add_middleware(
 )
 
 # Start background thread on startup
-@app.on_event("startup")
-def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     start_connection_monitor()
     start_background_updater()
+
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 @app.get("/simulator-status")
 def get_status():
