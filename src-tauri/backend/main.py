@@ -9,8 +9,20 @@ import uvicorn
 import random
 import time
 import socket
+import os
+import threading
+import psutil
 
 PORT = 5051
+
+def exit_if_parent_dies():
+    try:
+        parent = psutil.Process(os.getppid())
+        parent.wait()
+        print("🔌 Parent process exited. Shutting down backend.")
+        os._exit(1)
+    except Exception as e:
+        print(f"⚠️ Failed to track parent process: {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -64,19 +76,19 @@ async def set_simvar(request: Request):
 def ping():
     return {"message": "Python backend is live!"}
 
-
 def is_port_open(host: str, port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex((host, port)) != 0  # True if port is free
 
-
 if __name__ == "__main__":
+    threading.Thread(target=exit_if_parent_dies, daemon=True).start()
+
     while True:
         if is_port_open("127.0.0.1", PORT):
             try:
                 print(f"🟢 Starting server on port {PORT}...")
-                uvicorn.run("main:app", host="127.0.0.1", port=PORT, reload=False)
-                break  # Exit loop if server starts successfully
+                uvicorn.run(app, host="127.0.0.1", port=PORT, reload=False)
+                break
             except Exception as e:
                 print(f"❌ Failed to start server: {e}")
         else:

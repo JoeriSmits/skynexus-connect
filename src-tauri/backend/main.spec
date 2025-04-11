@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['main.py'],
+    ['C:/Users/Joeri/Projects/skynexus/skynexus-connect/src-tauri/backend/main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('C:/Users/Joeri/Projects/skynexus/skynexus-connect/src-tauri/backend/SimConnect/SimConnect.dll', 'SimConnect')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

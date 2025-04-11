@@ -1,4 +1,5 @@
 fastapi
 uvicorn
-simconnect
+SimConnect
 pyinstaller
+psutil

@@ -1,22 +1,32 @@
-# src-tauri/backend/build_backend.py
 import subprocess
-import sys
 import os
+import sys
 
-# Set correct path to main.py relative to this script
-MAIN_SCRIPT = os.path.join(os.path.dirname(__file__), "main.py")
-DIST_DIR = os.path.join(os.path.dirname(__file__), "dist")
+# ✅ Absolute path to the PyInstaller executable
+PYINSTALLER = os.path.expandvars(
+    r"%LOCALAPPDATA%\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\Scripts\pyinstaller.exe"
+)
 
-print("🔨 Building Python backend with PyInstaller...")
+# ✅ Define project paths
+BACKEND_PATH = os.path.abspath("main.py").replace("\\", "/")
+DIST_PATH = os.path.abspath("dist").replace("\\", "/")
+SIMCONNECT_DLL_DIR = os.path.abspath("SimConnect").replace("\\", "/")
 
-try:
-    subprocess.run([
-        os.path.expandvars(r"%LOCALAPPDATA%\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\Scripts\pyinstaller.exe"),
-        MAIN_SCRIPT,
-        "--onefile",
-        "--distpath", DIST_DIR,
-    ], check=True)
-    print("✅ Python backend build complete.")
-except subprocess.CalledProcessError as e:
-    print("❌ PyInstaller build failed:", e)
+print("📦 Bundling Python backend with PyInstaller...")
+
+# ✅ Build the onefile executable with SimConnect.dll included
+result = subprocess.run([
+    PYINSTALLER,
+    BACKEND_PATH,
+    "--onefile",
+    "--distpath", DIST_PATH,
+    "--clean",
+    "--add-data", f"{SIMCONNECT_DLL_DIR}/SimConnect.dll;SimConnect",  # format: source;relative_dest (Windows: `;`)
+], shell=True)
+
+# ✅ Handle errors
+if result.returncode != 0:
+    print("❌ PyInstaller build failed")
     sys.exit(1)
+else:
+    print("✅ Backend build complete!")

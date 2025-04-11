@@ -4,6 +4,16 @@ from datetime import datetime
 from .sim_state import AircraftData, simulator_state
 from sim.connection import wait_for_vr
 
+#####
+# CAMERA STATE SimVar:
+
+# Different values correspond to various simulator states:​
+# Microsoft Flight Simulator Forums
+
+# Values less than or equal to 6 typically represent in-flight camera views.
+
+# Monitoring this variable can help discern between menu navigation and active flight.
+
 tracked_vars = {
     "lat": "(A:PLANE LATITUDE, Degrees)",
     "lon": "(A:PLANE LONGITUDE, Degrees)",
