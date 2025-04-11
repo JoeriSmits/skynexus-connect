@@ -1,0 +1,11 @@
+{
+    "version": "0.1.0",
+    "notes": "Initial Release",
+    "pub_date": "2025-04-11T12:00:00Z",
+    "platforms": {
+      "windows-x86_64": {
+        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhFMTFCMkJBQTNFQkJBRjAKUldUd3V1dWp1cklSanB0UVdVbzdqYm4zTSs3bGhubGtCZHdIUzJwblN1Z0J5L3lHVnpBK3RxS0oK",
+        "url": ""
+      }
+    }
+  }
