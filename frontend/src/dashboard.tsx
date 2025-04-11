@@ -1,4 +1,3 @@
-// dashboard.tsx
 import ActiveContract from "./components/active-contract";
 import SimulatorStatusCard from "./components/simulator-status";
 import UserPanel from "./components/user-panel";
@@ -43,7 +42,6 @@ export default function Dashboard({ user, onLogout }: Props) {
           />
         </div>
 
-        {/* Other widgets */}
         {contract && (
           <div>
               <SimulatorStatusCard contract={contract} user={user} />

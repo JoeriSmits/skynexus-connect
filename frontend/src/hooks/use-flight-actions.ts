@@ -12,7 +12,7 @@ export function useFlightActions(
   setError: (msg: string | null) => void
 ) {
   const handleAbort = useCallback(async () => {
-    await fetch("http://localhost:5000/abort-flight", { method: "POST" });
+    await fetch("http://localhost:5051/abort-flight", { method: "POST" });
     setError(null);
     refetch();
   }, [refetch, setError]);
@@ -28,10 +28,10 @@ export function useFlightActions(
     );
 
     // Optional: Enforce proximity rule
-    // if (distance > 30) {
-    //   setError("You must be within 30km of the arrival airport to complete the flight.");
-    //   return;
-    // }
+    if (distance > 30) {
+      setError("You must be within 30km of the arrival airport to complete the flight.");
+      return;
+    }
 
     // ❌ Disallow maintenance cheating (e.g. repairs)
     if (lastFlight.maintenance_used) {

@@ -1,4 +1,3 @@
-// active-contract.tsx
 import { IconAlertTriangleFilled, IconRefresh } from "@tabler/icons-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ContractCard } from "./contract-card";

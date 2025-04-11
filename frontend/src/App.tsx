@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import Login from './components/login'
-import UserPanel from './components/user-panel'
 import { supabase } from './lib/supabase'
 import Dashboard from './dashboard'
 
 function App() {
-  const [status, setStatus] = useState<string>('Loading...')
   const [user, setUser] = useState<any | null>(null)
 
   useEffect(() => {
@@ -24,13 +22,6 @@ function App() {
     }
   }, [])
 
-  useEffect(() => {
-    if (!user) return
-    fetch('http://localhost:5000/status')
-      .then((res) => res.json())
-      .then((data) => setStatus(data.message))
-      .catch(() => setStatus('Python backend not running 😢'))
-  }, [user])
 
   const handleLogin = async (loggedInUser: any) => {
     setUser(loggedInUser)

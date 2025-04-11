@@ -36,7 +36,7 @@ export function useSimulatorStatus(contract: Contract) {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/simulator-status");
+      const res = await fetch("http://localhost:5051/simulator-status");
       const data: SimulatorStatus = await res.json();
 
       setConnected(data.connected);
@@ -124,13 +124,13 @@ export function useSimulatorStatus(contract: Contract) {
 async function setFuelInSim(liters: number) {
   const gallons = liters / 3.78541;
   try {
-    await fetch("http://localhost:5000/set-simvar", {
+    await fetch("http://localhost:5051/set-simvar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ var: "A:FUEL TANK LEFT MAIN QUANTITY,Gallons", value: gallons / 2 }),
     });
 
-    await fetch("http://localhost:5000/set-simvar", {
+    await fetch("http://localhost:5051/set-simvar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ var: "A:FUEL TANK RIGHT MAIN QUANTITY,Gallons", value: gallons / 2 }),
@@ -144,7 +144,7 @@ async function setFuelInSim(liters: number) {
 
 async function setSimVar(variable: string, value: number) {
   try {
-    await fetch("http://localhost:5000/set-simvar", {
+    await fetch("http://localhost:5051/set-simvar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ var: variable, value }),
