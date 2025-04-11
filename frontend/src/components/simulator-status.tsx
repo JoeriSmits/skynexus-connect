@@ -68,7 +68,7 @@ export default function SimulatorStatusCard({ contract, user }: Props) {
         />
       )}
 
-      {isTracking && aircraft?.rpm > 100 && (
+      {isTracking && aircraft && aircraft?.rpm > 100 && (
         <StatusAlert
           icon={<IconPropeller className="text-xl animate-spin" />}
           color="blue"

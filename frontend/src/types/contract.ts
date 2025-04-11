@@ -2,6 +2,8 @@ type Airport = {
     icao: string;
     name: string;
     cover_image_url: string | null;
+    lat: number;
+    lon: number;
 };
 
 type Aircraft = {

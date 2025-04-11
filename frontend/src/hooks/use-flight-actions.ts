@@ -36,7 +36,7 @@ export function useFlightActions(
     // ❌ Disallow maintenance cheating (e.g. repairs)
     if (lastFlight.maintenance_used) {
       const repairedKeys = Object.entries(lastFlight.maintenance_used).filter(
-        ([_, value]) => value < 0
+        ([_, value]) => typeof value === "number" && value < 0
       );
       if (repairedKeys.length > 0) {
         setError("Detected repairs during flight. You cannot decrease wear during a mission.");
