@@ -4,29 +4,69 @@ from datetime import datetime
 from .sim_state import AircraftData, simulator_state
 from sim.connection import wait_for_vr
 
-#####
-# CAMERA STATE SimVar:
-
-# Different values correspond to various simulator states:​
-# Microsoft Flight Simulator Forums
-
-# Values less than or equal to 6 typically represent in-flight camera views.
-
-# Monitoring this variable can help discern between menu navigation and active flight.
-
+# Tracked SimVars
 tracked_vars = {
     "lat": "(A:PLANE LATITUDE, Degrees)",
     "lon": "(A:PLANE LONGITUDE, Degrees)",
     "rpm": "(A:GENERAL ENG RPM:1, rpm)",
     "fuel": "(A:FUEL TOTAL QUANTITY,Gallons)",
     "wear_L": "(L:var_engineDamage_L)",
-    "wear_R": "(L:var_engineDamage_R)"
+    "wear_R": "(L:var_engineDamage_R)",
+    "camera": "(A:CAMERA STATE, Enum)"  # Used to detect MSFS menu
 }
 
 def fetch_aircraft_data(vr):
     print("📡 Background updater started.")
     while True:
         try:
+            camera_state = vr.get(tracked_vars["camera"])
+            in_menu = camera_state > 6
+
+            if in_menu:
+                if simulator_state.tracking_active:
+                    print("🟡 User entered menu during flight — ending tracking session.")
+
+                    now = datetime.utcnow()
+                    fuel_liters = vr.get(tracked_vars["fuel"]) * 3.78541
+                    block_time = (now - simulator_state.start_time).total_seconds() / 3600
+                    fuel_used = simulator_state.start_fuel - fuel_liters
+
+                    maintenance = {
+                        "L:var_engineDamage_L": vr.get(tracked_vars["wear_L"]),
+                        "L:var_engineDamage_R": vr.get(tracked_vars["wear_R"]),
+                    }
+                    maintenance_used = {
+                        key: round(maintenance[key] - simulator_state.start_maintenance.get(key, 0.0), 2)
+                        for key in maintenance
+                    }
+
+                    aircraft = AircraftData(
+                        lat=vr.get(tracked_vars["lat"]),
+                        lon=vr.get(tracked_vars["lon"]),
+                        rpm=vr.get(tracked_vars["rpm"]),
+                        fuel_liters=fuel_liters,
+                        fuel_used=round(fuel_used, 2),
+                        block_time=round(block_time, 2),
+                        block_out=simulator_state.block_out,
+                        block_in=now,
+                        maintenance_state=maintenance,
+                        maintenance_used=maintenance_used
+                    )
+
+                    simulator_state.last_completed_aircraft = aircraft
+                    simulator_state.aircraft = aircraft
+                    simulator_state.block_out = None
+                    simulator_state.tracking_active = False
+                    simulator_state.start_time = None
+                    simulator_state.start_fuel = None
+                    simulator_state.start_maintenance = None
+
+                simulator_state.connected = False
+                simulator_state.aircraft = None
+                sleep(1)
+                continue
+
+            # Normal update loop
             lat = vr.get(tracked_vars["lat"])
             lon = vr.get(tracked_vars["lon"])
             rpm = vr.get(tracked_vars["rpm"])
@@ -58,7 +98,6 @@ def fetch_aircraft_data(vr):
                 block_time = (now - simulator_state.start_time).total_seconds() / 3600
                 fuel_used = simulator_state.start_fuel - fuel_liters
 
-                # Compute maintenance diff
                 maintenance_used = {
                     key: round(maintenance[key] - simulator_state.start_maintenance.get(key, 0.0), 2)
                     for key in maintenance
@@ -85,7 +124,6 @@ def fetch_aircraft_data(vr):
                 simulator_state.aircraft = aircraft
                 simulator_state.block_out = None
 
-            # Always update current state
             aircraft = AircraftData(
                 lat=lat,
                 lon=lon,
