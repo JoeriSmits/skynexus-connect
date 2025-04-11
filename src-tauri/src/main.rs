@@ -16,14 +16,14 @@ fn main() {
                 use std::os::windows::process::CommandExt;
                 const CREATE_NO_WINDOW: u32 = 0x08000000;
             
-                Command::new("python")
-                    .args(["./backend/main.py"])
+                Command::new("cmd")
+                    .args(["/k", "python", "./backend/main.py"])
                     // .creation_flags(CREATE_NO_WINDOW)
                     .spawn()
                     .expect("❌ Failed to start Python backend")
             } else {
-                Command::new("python3")
-                    .args(["./backend/main.py"])
+                Command::new("cmd")
+                    .args(["/k", "python", "./backend/main.py"])
                     .spawn()
                     .expect("❌ Failed to start Python backend")
             };            
