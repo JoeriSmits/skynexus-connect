@@ -12,10 +12,21 @@ fn main() {
     Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(move |_app| {
-            let child = Command::new("python")
-                .args(["./backend/main.py"])
-                .spawn()
-                .expect("❌ Failed to start Python backend");
+            let child = if cfg!(target_os = "windows") {
+                use std::os::windows::process::CommandExt;
+                const CREATE_NO_WINDOW: u32 = 0x08000000;
+            
+                Command::new("python")
+                    .args(["./backend/main.py"])
+                    .creation_flags(CREATE_NO_WINDOW)
+                    .spawn()
+                    .expect("❌ Failed to start Python backend")
+            } else {
+                Command::new("python3")
+                    .args(["./backend/main.py"])
+                    .spawn()
+                    .expect("❌ Failed to start Python backend")
+            };            
 
             *process_clone.lock().unwrap() = Some(child);
             Ok(())

@@ -24,7 +24,7 @@ export default function Dashboard({ user, onLogout }: Props) {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">SkyNexus Connector</h1>
             <p className="text-muted-foreground text-sm">
-              Monitor your active contract and account status
+              Monitor your active contract and flight status
             </p>
           </div>
           <div className="w-full md:w-auto">

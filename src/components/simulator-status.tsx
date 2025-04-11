@@ -5,7 +5,8 @@ import { IconGasStation, IconLoader2, IconMapPinOff, IconPlugConnectedX, IconPro
 import FlightSummaryCard from "./flight-summary-card";
 import { User } from "@supabase/supabase-js";
 import { useFlightActions } from "@/hooks/use-flight-actions";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 type Props = {
   contract: Contract;
@@ -27,6 +28,22 @@ export default function SimulatorStatusCard({ contract, user }: Props) {
   const readyToStart = connected && withinRange && !isTracking;
 
   const fuelMismatch = aircraft && Math.abs(aircraft.fuel_liters - contract.aircraft_id.fuel_liters) > 5;
+
+  // Inside your SimulatorStatusCard component, after defining hooks
+  useEffect(() => {
+    const updateFlyingState = async () => {
+      const { error } = await supabase
+        .from("contracts")
+        .update({ is_flying: isTracking })
+        .eq("id", contract.id);
+
+      if (error) {
+        console.error("❌ Failed to update is_flying:", error.message);
+      }
+    };
+
+    updateFlyingState();
+  }, [isTracking, contract.id]);
 
   return (
     <div className="border rounded-xl p-4 space-y-4">
@@ -73,7 +90,7 @@ export default function SimulatorStatusCard({ contract, user }: Props) {
           icon={<IconPropeller className="text-xl animate-spin" />}
           color="blue"
           title="✈️ Flight in progress"
-          message="Tracking block time and fuel usage."
+          message="Tracking block time and fuel usage. The flight will complete when you stop your engines."
         />
       )}
 

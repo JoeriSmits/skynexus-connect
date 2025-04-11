@@ -80,7 +80,7 @@ export function useSimulatorStatus(contract: Contract) {
             const current = data.aircraft.maintenance_state[key];
             if (typeof expected === "number" && typeof current === "number") {
               const delta = Math.abs(current - expected);
-              if (delta > 1) {
+              if (delta > 0.01) {
                 await setSimVar(key, expected);
                 didSetAny = true;
               }
