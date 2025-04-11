@@ -1,33 +1,36 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::process::Command;
-use std::thread;
+use std::process::{Child, Command};
+use std::sync::{Arc, Mutex};
+use tauri::{Builder, Window, WindowEvent};
 
 fn main() {
-    tauri::Builder::default()
+    let python_process: Arc<Mutex<Option<Child>>> = Arc::new(Mutex::new(None));
+    let process_clone = python_process.clone();
+
+    Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .setup(|_app| {
-            thread::spawn(|| {
-                #[cfg(target_os = "windows")]
-                {
-                    Command::new("python")
-                        .args(["./backend/main.py"])
-                        .spawn()
-                        .expect("Failed to start Python backend");
-                }
+        .setup(move |_app| {
+            let child = Command::new("python")
+                .args(["./backend/main.py"])
+                .spawn()
+                .expect("❌ Failed to start Python backend");
 
-                #[cfg(not(target_os = "windows"))]
-                {
-                    Command::new("python3")
-                        .args(["./backend/main.py"])
-                        .spawn()
-                        .expect("Failed to start Python backend");
-                }
-            });
-
+            *process_clone.lock().unwrap() = Some(child);
             Ok(())
         })
+        .on_window_event({
+            let process_clone = python_process.clone();
+            move |_window: &Window, event: &WindowEvent| {
+                if let WindowEvent::CloseRequested { .. } = event {
+                    if let Some(mut child) = process_clone.lock().unwrap().take() {
+                        let _ = child.kill();
+                        println!("🛑 Python backend stopped.");
+                    }
+                }
+            }
+        })
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("error while running tauri app");
 }

@@ -8,6 +8,15 @@ from sim.background_updater import start_background_updater
 import uvicorn
 import random
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_connection_monitor()
+    start_background_updater()
+    yield  # Let the app run
+    # Optional: cleanup logic after shutdown here
+
+app = FastAPI(lifespan=lifespan)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Dev only
@@ -15,16 +24,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Start background thread on startup
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    start_connection_monitor()
-    start_background_updater()
-
-    yield
-
-app = FastAPI(lifespan=lifespan)
 
 @app.get("/simulator-status")
 def get_status():
@@ -50,7 +49,6 @@ async def set_simvar(request: Request):
         return { "status": "error", "message": "Missing 'var' or 'value'" }
 
     try:
-        # Add a small random delta to avoid caching
         jitter = random.uniform(-0.001, 0.001)
         value_with_jitter = float(value) + jitter
 
