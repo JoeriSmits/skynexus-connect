@@ -27,14 +27,14 @@ export function useFlightActions(
         lastFlight.lon
       );
   
-      if (distance > 30) {
-        setError("You must be within 30km of the arrival airport to complete the flight.");
-        return;
-      }
+    //   if (distance > 30) {
+    //     setError("You must be within 30km of the arrival airport to complete the flight.");
+    //     return;
+    //   }
   
       await supabase.from("flights").insert({
         user_id: user.id,
-        aircraft_id: contract.aircraft_id,
+        aircraft_id: contract.aircraft_id.id,
         date: lastFlight.block_out?.slice(0, 10),
         departure_icao: contract.from_airport.icao,
         arrival_icao: contract.to_airport.icao,
@@ -43,7 +43,7 @@ export function useFlightActions(
         block_time: lastFlight.block_time,
         fuel_used: lastFlight.fuel_used,
         maintenance: {},
-        status: "published",
+        status: "draft",
       });
   
       await fetch("http://localhost:5000/abort-flight", { method: "POST" });

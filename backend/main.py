@@ -2,6 +2,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sim.sim_state import simulator_state
+from sim.connection import start_connection_monitor, get_vr
 from sim.background_updater import start_background_updater
 import uvicorn
 
@@ -18,6 +19,7 @@ app.add_middleware(
 # Start background thread on startup
 @app.on_event("startup")
 def startup_event():
+    start_connection_monitor()
     start_background_updater()
 
 @app.get("/simulator-status")
@@ -29,17 +31,25 @@ def abort_flight():
     simulator_state.last_completed_aircraft = None
     return {"message": "Flight aborted"}
 
-@app.post("/set-initial-state")
-async def set_state(request: Request):
-    data = await request.json()
-    print("Set initial aircraft state:", data)
-    return {"ok": True}
+@app.post("/set-simvar")
+async def set_simvar(request: Request):
+    vr = get_vr()
+    
+    if vr is None:
+        return { "status": "error", "message": "SimConnect not initialized." }
 
-@app.post("/complete-flight")
-async def complete_flight(request: Request):
-    data = await request.json()
-    print("Received completed flight:", data)
-    return {"ok": True}
+    body = await request.json()
+    var = body.get("var")
+    value = body.get("value")
+
+    if not var or value is None:
+        return { "status": "error", "message": "Missing 'var' or 'value'" }
+
+    try:
+        vr.set(f"{value} (> {var})")
+        return { "status": "success", "var": var, "value": value }
+    except Exception as e:
+        return { "status": "error", "message": str(e) }
 
 @app.get("/status")
 def ping():
