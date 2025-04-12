@@ -1,4 +1,4 @@
-import { IconCircleCheck } from "@tabler/icons-react";
+import { IconArrowBarToLeft, IconArrowBarToRight, IconClockHour4, IconGasStation } from "@tabler/icons-react";
 
 interface FlightSummaryProps {
   blockTime: number;
@@ -26,37 +26,37 @@ export default function FlightSummaryCard({
 
   return (
     <div className="border-2 border-green-600 p-5 rounded-xl flex flex-col md:flex-row md:items-start md:justify-between text-green-700 space-y-4 md:space-y-0">
-      <div className="flex items-start space-x-4">
-        <IconCircleCheck className="text-green-600 text-3xl mt-1" />
         <div>
           <p className="text-lg font-bold">Flight completed</p>
           <div className="mt-2 text-sm text-muted-foreground space-y-1">
-            <p>
-              ⏱️ Block time:{" "}
-              <span className="font-medium text-foreground">
-                {blockTime.toFixed(2)} hours
-              </span>
-            </p>
-            <p>
-              ⛽ Fuel used:{" "}
-              <span className="font-medium text-foreground">
-                {fuelUsed.toFixed(2)} L
-              </span>
-            </p>
+            <div className="flex items-center gap-2">
+              <IconClockHour4 className="w-4 h-4 text-muted-foreground" />
+              <span className="w-28">Block time:</span>
+              <span className="font-medium text-foreground">{blockTime.toFixed(2)} hours</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <IconGasStation className="w-4 h-4 text-muted-foreground" />
+              <span className="w-28">Fuel used:</span>
+              <span className="font-medium text-foreground">{fuelUsed.toFixed(2)} L</span>
+            </div>
+
             {blockOut && (
-              <p>
-                📤 Block OUT:{" "}
+              <div className="flex items-center gap-2">
+                <IconArrowBarToRight className="w-4 h-4 text-muted-foreground" />
+                <span className="w-28">Block OUT:</span>
                 <span className="font-mono text-foreground">{formatTime(blockOut)}</span>
-              </p>
+              </div>
             )}
+
             {blockIn && (
-              <p>
-                📥 Block IN:{" "}
+              <div className="flex items-center gap-2">
+                <IconArrowBarToLeft className="w-4 h-4 text-muted-foreground" />
+                <span className="w-28">Block IN:</span>
                 <span className="font-mono text-foreground">{formatTime(blockIn)}</span>
-              </p>
+              </div>
             )}
           </div>
-        </div>
       </div>
 
       {/* Wrap this whole right section */}

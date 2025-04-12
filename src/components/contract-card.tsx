@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Contract } from "@/types/contract";
 import { IconRefresh } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
 
 export function ContractCard({
   contract,
@@ -11,41 +12,47 @@ export function ContractCard({
 }) {
   return (
     <Card className="overflow-hidden">
-      <CardContent className="flex justify-between items-center gap-4">
-        {/* Left Side: Airport image + route info */}
-        <div className="flex items-center gap-4">
+      <CardContent className="flex items-center justify-between gap-6">
+        {/* Left Side: Route info */}
+        <div className="flex items-center gap-4 flex-1">
           {contract.from_airport.cover_image_url && (
             <img
               src={contract.from_airport.cover_image_url}
               alt={contract.from_airport.name}
-              className="w-16 h-16 object-cover rounded-md"
+              className="w-16 h-16 object-cover rounded-md shadow"
             />
           )}
           <div>
             <p className="text-sm text-muted-foreground">Active Contract</p>
-            <p className="text-lg font-semibold">
+            <p className="text-xl font-semibold">
               {contract.from_airport.icao} → {contract.to_airport.icao}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {contract.aircraft_id.type} • {contract.aircraft_id.tail_number}
             </p>
           </div>
         </div>
 
-        {/* Right Side: payout + deadline + refresh */}
-        <div className="text-right space-y-1">
-          <p className="text-sm font-bold text-green-600">
+        {/* Middle: payout + deadline */}
+        <div className="flex flex-col items-end gap-1 text-right">
+          <p className="text-lg font-bold text-green-600">
             €{contract.payout.toLocaleString()}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Due {new Date(contract.deadline).toLocaleDateString()}
           </p>
-          <button
+        </div>
+
+        {/* Right: large refresh button */}
+        <div>
+          <Button
+            variant="outline"
             onClick={onRefresh}
-            className="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-1 cursor-pointer"
+            title="Refresh contract"
+            className="w-14 h-14 p-0 rounded-xl flex items-center justify-center hover:bg-muted transition cursor-pointer"
           >
-            <IconRefresh size={14} /> Refresh
-          </button>
+            <IconRefresh />
+          </Button>
         </div>
       </CardContent>
     </Card>
