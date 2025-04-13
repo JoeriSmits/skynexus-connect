@@ -58,7 +58,7 @@ export default function SimulatorStatusCard({ contract, user }: Props) {
         />
       )}
 
-      {connected && aircraft && !isTracking && !withinRange && (
+      {connected && aircraft && !isTracking && !lastFlight && !withinRange && (
         <StatusAlert
           icon={<IconMapPinOff className="text-xl" />}
           color="yellow"
