@@ -1,11 +1,11 @@
 {
-    "version": "1.0.4",
-    "notes": "Improvement on UI and UX in version 1.0.4",
+    "version": "1.0.5",
+    "notes": "Minor bug in departure check",
     "pub_date": "2025-04-12T20:00:00Z",
     "platforms": {
       "windows-x86_64": {
-        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUd3V1dWp1cklSanZ6dVhUcUgzR0NLVGJzdXh1bWxpTjZrK05YbUtWQjFkRVFWR1VUc0I0V1R1bkMyVDc4YzdrblNaQmFiSUhrN0diNE1HVWVIR1hnU2JHRldKQUVLTHdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQ0NDg4ODExCWZpbGU6c2t5bmV4dXMtY29ubmVjdG9yXzEuMC40X3g2NC1zZXR1cC5leGUKeWVvanhONlExMWhJazRBcnJ2U0dXS2JWK2Fkb2lRUnByN29FYXQ3NUxDUVpXY3FUL3IyK0VqYXZYRWJtVUlQV0JXRWFZLzFSblNLeG10VGJ3Tks4QVE9PQo=",
-        "url": "https://github.com/JoeriSmits/skynexus-connect/raw/refs/heads/master/src-tauri/target/release/bundle/nsis/skynexus-connector_1.0.4_x64-setup.exe"
+        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUd3V1dWp1cklSampJbjl3K3VOdDBZTUtuVGF6a0U4L21SL2I0SkJuNVhLbjBuQjJxc2RWWTgxNEx6S2dPcTB3WXNjREtXM3YrT2tjSllFM3Y2L1BXUUdwMjNMQkFXMWdRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQ0NTUxNDQ1CWZpbGU6c2t5bmV4dXMtY29ubmVjdG9yXzEuMC41X3g2NC1zZXR1cC5leGUKUXUxOHNVWHE4Z0NDYkF1NXV5dnJsVllRTUllYUlROEdoNjYzcXZRNiswMUVnMmNZcGN0RWEvNGx6cHd5VHdOMTJJd09qT21nSmlxclRxcFpFTEVjQ2c9PQo=",
+        "url": "https://github.com/JoeriSmits/skynexus-connect/raw/refs/heads/master/src-tauri/target/release/bundle/nsis/skynexus-connector_1.0.5_x64-setup.exe"
       }
     }
   }
