@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "skynexus-connector",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "identifier": "nl.skynexus.app.connector",
   "build": {
     "frontendDist": "../dist",
