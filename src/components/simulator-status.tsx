@@ -113,7 +113,10 @@ export default function SimulatorStatusCard({ contract, user }: Props) {
           setIsSettingValues(true);
           try {
             await refetch();
-            await fetch("http://localhost:5051/abort-flight", { method: "POST" });
+
+            setTimeout(async () => {
+              await fetch("http://localhost:5051/abort-flight", { method: "POST" });
+            }, 1000);
           } catch (err) {
             console.error("❌ Failed to set values for next flight:", err);
           } finally {
