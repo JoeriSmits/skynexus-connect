@@ -1,11 +1,11 @@
 {
-    "version": "1.0.6",
+    "version": "1.0.5",
     "notes": "Minor bug in departure check",
     "pub_date": "2025-04-13T20:00:00Z",
     "platforms": {
       "windows-x86_64": {
         "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUd3V1dWp1cklSanFlc1dnRFlKNGh5YUtwdG9rK0RZUGsvaXplTU8yeUhnWC9RbFFIQUdiMFZoTDBHZWxITml0eEpmZVQ1TFlxVWp0aUFMM1ZCRzBHSjVDYmhHdEk0OEEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQ0NTgwMDg4CWZpbGU6c2t5bmV4dXMtY29ubmVjdG9yXzEuMC41X3g2NC1zZXR1cC5leGUKNGxKV1FnWVJseEI5MUd2WFZ5dVJDVXg4QW0rRlcvaFpUb053Q2lGRENEMXFpV2psYzlQZm9PSXdQdnpkLy9CN1VqMnlnZ2w2MDVYcU5LeFRTT2dFQUE9PQo=",
-        "url": "https://github.com/JoeriSmits/skynexus-connect/raw/refs/heads/master/src-tauri/target/release/bundle/nsis/skynexus-connector_1.0.6_x64-setup.exe"
+        "url": "https://github.com/JoeriSmits/skynexus-connect/raw/refs/heads/master/src-tauri/target/release/bundle/nsis/skynexus-connector_1.0.5_x64-setup.exe"
       }
     }
   }
