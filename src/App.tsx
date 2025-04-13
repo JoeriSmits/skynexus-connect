@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase'
 import Dashboard from './dashboard'
 import { check } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
+import { invoke } from '@tauri-apps/api/core';
 
 function App() {
   const [user, setUser] = useState<any | null>(null)
@@ -26,26 +27,27 @@ function App() {
     }
   }, [])
 
-  
   async function runUpdater() {
     const update = await check();
 
     if (update) {
-      console.log(
-        `found update ${update.version} from ${update.date} with notes ${update.body}`
-      );
-      let downloaded = 0;
-      let contentLength: number | undefined = 0;
-      // alternatively we could also call update.download() and update.install() separately
+      console.log(`found update ${update.version} from ${update.date}`);
+
+      // 🛑 Gracefully stop the backend first
+      try {
+        await invoke("stop_backend");
+        console.log("✅ Backend stopped before update.");
+      } catch (e) {
+        console.warn("⚠️ Failed to stop backend", e);
+      }
+
       await update.downloadAndInstall((event) => {
         switch (event.event) {
           case 'Started':
-            contentLength = event.data.contentLength;
             console.log(`started downloading ${event.data.contentLength} bytes`);
             break;
           case 'Progress':
-            downloaded += event.data.chunkLength;
-            console.log(`downloaded ${downloaded} from ${contentLength}`);
+            console.log(`downloaded ${event.data.chunkLength}`);
             break;
           case 'Finished':
             console.log('download finished');
@@ -57,6 +59,7 @@ function App() {
       await relaunch();
     }
   }
+
 
 
   const handleLogin = async (loggedInUser: any) => {
