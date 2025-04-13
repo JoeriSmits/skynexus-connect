@@ -28,39 +28,37 @@ function App() {
   }, [])
 
   async function runUpdater() {
-    const update = await check();
-
+    const update = await check()
+  
     if (update) {
-      console.log(`found update ${update.version} from ${update.date}`);
-
-      // 🛑 Gracefully stop the backend first
+      console.log(`🆕 Found update ${update.version}`)
+  
       try {
-        await invoke("stop_backend");
-        console.log("✅ Backend stopped before update.");
-      } catch (e) {
-        console.warn("⚠️ Failed to stop backend", e);
+        console.log("🛑 Stopping backend...")
+        await invoke("stop_backend")
+        await new Promise((res) => setTimeout(res, 1000)) // wait 1 sec for cleanup
+      } catch (err) {
+        console.warn("⚠️ Could not stop backend:", err)
       }
-
+  
       await update.downloadAndInstall((event) => {
         switch (event.event) {
           case 'Started':
-            console.log(`started downloading ${event.data.contentLength} bytes`);
-            break;
+            console.log(`⬇️ Download started (${event.data.contentLength} bytes)`)
+            break
           case 'Progress':
-            console.log(`downloaded ${event.data.chunkLength}`);
-            break;
+            console.log(`📦 Downloaded ${event.data.chunkLength} bytes`)
+            break
           case 'Finished':
-            console.log('download finished');
-            break;
+            console.log('✅ Download finished')
+            break
         }
-      });
-
-      console.log('update installed');
-      await relaunch();
+      })
+  
+      console.log('🚀 Update installed — relaunching app')
+      await relaunch()
     }
   }
-
-
 
   const handleLogin = async (loggedInUser: any) => {
     setUser(loggedInUser)
