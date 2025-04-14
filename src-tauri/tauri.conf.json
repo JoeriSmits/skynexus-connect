@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "skynexus-connector",
-  "version": "1.0.10",
+  "productName": "SkyNexus Connector",
+  "version": "1.0.11",
   "identifier": "nl.skynexus.app.connector",
   "build": {
     "frontendDist": "../dist",
@@ -44,7 +44,10 @@
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDhFMTFCMkJBQTNFQkJBRjAKUldUd3V1dWp1cklSanB0UVdVbzdqYm4zTSs3bGhubGtCZHdIUzJwblN1Z0J5L3lHVnpBK3RxS0oK",
       "endpoints": [
         "https://raw.githubusercontent.com/JoeriSmits/skynexus-connect/refs/heads/master/latest.json"
-      ]
+      ],
+      "windows": {
+        "installMode": "basicUi"
+      }
     }
   }
 }
