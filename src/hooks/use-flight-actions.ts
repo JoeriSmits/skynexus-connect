@@ -23,22 +23,21 @@ export function useFlightActions(
 
   const handleFinish = useCallback(async () => {
     if (!lastFlight || !user) return;
-
-    // Create a unique key for this flight
+  
     const currentFlightKey = `${lastFlight.block_out}-${lastFlight.block_in}`;
-
+  
     const distance = getDistanceFromLatLonInKm(
       contract.to_airport.lat,
       contract.to_airport.lon,
       lastFlight.lat,
       lastFlight.lon
     );
-
+  
     if (distance > 30) {
       setError("You must be within 30km of the arrival airport to complete the flight.");
       return;
     }
-
+  
     if (lastFlight.maintenance_used) {
       const repairedKeys = Object.entries(lastFlight.maintenance_used).filter(
         ([_, value]) => typeof value === "number" && value < 0
@@ -48,8 +47,20 @@ export function useFlightActions(
         return;
       }
     }
-
+  
+    let logPath: string | null = null;
+  
     if (lastSavedKey.current !== currentFlightKey) {
+      try {
+        const res = await fetch("http://localhost:5051/stop-and-upload");
+        const result = await res.json();
+        if (result.status === "uploaded" && result.path) {
+          logPath = result.path;
+        }
+      } catch (err) {
+        console.error("❌ Failed to upload log:", err);
+      }
+      
       await supabase.from("flights").insert({
         user_id: user.id,
         aircraft_id: contract.aircraft_id.id,
@@ -62,19 +73,20 @@ export function useFlightActions(
         fuel_used: lastFlight.fuel_used,
         maintenance: lastFlight.maintenance_used,
         status: "draft",
+        log_path: logPath
       });
     }
-
+  
     lastSavedKey.current = currentFlightKey;
     setError(null);
     refetch();
-
+  
     const frontendUrl = import.meta.env.VITE_SKYNEXUS_FRONTEND_URL;
     if (frontendUrl) {
       window.open(`${frontendUrl}/dashboard/contracts/${contract.id}`, "_blank");
     }
   }, [contract, lastFlight, user, refetch, setError]);
-
+  
   return { handleFinish, handleAbort };
 }
 

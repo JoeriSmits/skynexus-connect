@@ -107,6 +107,14 @@ export function useSimulatorStatus(contract: Contract) {
   ]);
 
   useEffect(() => {
+    if (isTracking) {
+      fetch("http://localhost:5051/start-logging")
+        .then(() => console.log("🚀 Started backend logging"))
+        .catch((err) => console.error("❌ Failed to start logging:", err));
+    }
+  }, [isTracking]);  
+
+  useEffect(() => {
     const interval = setInterval(fetchStatus, 2000);
     return () => clearInterval(interval);
   }, [fetchStatus]);
