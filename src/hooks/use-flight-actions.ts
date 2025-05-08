@@ -35,7 +35,7 @@ export function useFlightActions(
   
     if (distance > 30) {
       setError("You must be within 30km of the arrival airport to complete the flight.");
-      return;
+      throw new Error("Flight distance exceeds 30km from arrival airport.");
     }
   
     if (lastFlight.maintenance_used) {
@@ -44,13 +44,16 @@ export function useFlightActions(
       );
       if (repairedKeys.length > 0) {
         setError("Detected repairs during flight. You cannot decrease wear during a mission.");
-        return;
+        throw new Error("Detected repairs during flight.");
       }
     }
   
     let logPath: string | null = null;
-  
+
     if (lastSavedKey.current !== currentFlightKey) {
+
+      console.log("Uploading log...");
+
       try {
         const res = await fetch("http://localhost:5051/stop-and-upload");
         const result = await res.json();
@@ -58,7 +61,7 @@ export function useFlightActions(
           logPath = result.path;
         }
       } catch (err) {
-        console.error("❌ Failed to upload log:", err);
+        throw new Error("Failed to upload log:" + (err as Error).message);
       }
       
       await supabase.from("flights").insert({
@@ -80,11 +83,6 @@ export function useFlightActions(
     lastSavedKey.current = currentFlightKey;
     setError(null);
     refetch();
-  
-    const frontendUrl = import.meta.env.VITE_SKYNEXUS_FRONTEND_URL;
-    if (frontendUrl) {
-      window.open(`${frontendUrl}/dashboard/contracts/${contract.id}`, "_blank");
-    }
   }, [contract, lastFlight, user, refetch, setError]);
   
   return { handleFinish, handleAbort };

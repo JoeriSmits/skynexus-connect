@@ -22,11 +22,14 @@ export function useActiveContract(userId: string) {
         .single();
 
       if (error) throw new Error(error.message);
+
       setContract(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error.");
       setContract(null);
     } finally {
+      await fetch("http://localhost:5051/abort-flight", { method: "POST" });
+      
       setLoading(false);
     }
   };
