@@ -2,6 +2,36 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Contract } from "@/types/contract";
 import { IconRefresh } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
+import { format, intervalToDuration } from "date-fns";
+import { cn } from "@/lib/utils"; // Tailwind class merge util
+
+function formatDeadlineDisplay(deadline: string | Date) {
+  const date = new Date(deadline);
+  const now = new Date();
+  const formattedDate = format(date, "dd-MM-yyyy HH:mm");
+
+  const duration = intervalToDuration({ start: now, end: date });
+  const parts: string[] = [];
+
+  if (duration.hours) parts.push(`${duration.hours}h`);
+  if (duration.minutes) parts.push(`${duration.minutes}m`);
+
+  const relative = parts.length > 0 ? `(${parts.join(" and ")})` : "";
+
+  return `${formattedDate} ${relative}`;
+}
+
+function getDeadlineClass(deadline: string | Date) {
+  const date = new Date(deadline);
+  const now = new Date();
+  const diffInMs = date.getTime() - now.getTime();
+  const diffInHours = diffInMs / (1000 * 60 * 60);
+
+  if (diffInHours < 1) return "text-red-600 font-semibold";
+  if (diffInHours < 6) return "text-yellow-600 font-semibold";
+  if (diffInHours < 24) return "text-orange-600";
+  return "text-muted-foreground";
+}
 
 export function ContractCard({
   contract,
@@ -38,8 +68,8 @@ export function ContractCard({
           <p className="text-lg font-bold text-green-600">
             €{contract.payout.toLocaleString()}
           </p>
-          <p className="text-sm text-muted-foreground">
-            Due {new Date(contract.deadline).toLocaleDateString()}
+          <p className={cn("text-sm", getDeadlineClass(contract.deadline))}>
+            Due {formatDeadlineDisplay(contract.deadline)}
           </p>
         </div>
 
