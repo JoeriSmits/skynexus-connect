@@ -77,7 +77,8 @@ export function useSimulatorStatus(contract: Contract) {
           let didSetAny = false;
 
           for (const [key, expected] of Object.entries(maintenance)) {
-            const current = data.aircraft.maintenance_state[key];
+            const current = data.aircraft.maintenance_state[`(${key})`];
+
             if (typeof expected === "number" && typeof current === "number") {
               const delta = Math.abs(current - expected);
               if (delta > 0.01) {
