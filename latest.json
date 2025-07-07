@@ -1,11 +1,11 @@
 {
-    "version": "1.1.5",
+    "version": "1.1.6",
     "notes": "Supporting the Starship",
     "pub_date": "2025-07-07T13:30:00Z",
     "platforms": {
       "windows-x86_64": {
-        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUd3V1dWp1cklSamtOSkhuWHFZV3BpUHJJMitvc3VTN1FoY0sxb1RsMnhieGNuVE8rbE1CVzFJbUJNUFFsRWJtZXN4eHU5ckN1cTBhNnYrNXpUZ085eU5CdElucWQ0eXd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzUxOTA0NDE0CWZpbGU6U2t5TmV4dXMgQ29ubmVjdG9yXzEuMS41X3g2NC1zZXR1cC5leGUKRkpldGxUMXI2cFV6Z1FJRTg0YlRSbCs3UTlMVEtCclFJaDk1czQ1anhtU3puQ3F1KzJUTFZFTUIxbUNORDZMbE1yeFplWlFPVXhyM2ZhaktNM3hRQlE9PQo=",
-        "url": "https://github.com/JoeriSmits/skynexus-connect/raw/refs/heads/master/src-tauri/target/release/bundle/nsis/SkyNexus%20Connector_1.1.5_x64-setup.exe"
+        "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUd3V1dWp1cklSanRjNXBQOXlJTTdscUcwOXlGU2VlM2Ewb0VLR2xrYnhwWTVQdFUvUTVIZFYxY2grMWNVeEJRdDUvRjhoaWNJeTFKdjBxbE42cVRseWpKYlhlRnVITGdvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzUxOTA1MTA1CWZpbGU6U2t5TmV4dXMgQ29ubmVjdG9yXzEuMS42X3g2NC1zZXR1cC5leGUKWHRxeGVQNUF6WVl5dXdwT2djRFVIcnJtT1d0YnFUR29PS1BJZloxVFpkNVJDSEd4TzFJUnBTa2J6RGZIREd6cHpwM01COTl5c2VmalNHb2Q1ZEJWQmc9PQo=",
+        "url": "https://github.com/JoeriSmits/skynexus-connect/raw/refs/heads/master/src-tauri/target/release/bundle/nsis/SkyNexus%20Connector_1.1.6_x64-setup.exe"
       }
     }
   }
