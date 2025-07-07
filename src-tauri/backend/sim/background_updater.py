@@ -19,6 +19,8 @@ tracked_vars = {
 def detect_aircraft_by_fuel_capacity(capacity: float) -> tuple[str, str, str]:
     if 415 <= capacity <= 425:
         return "P180", "(L:P180_engine_dmg_L)", "(L:P180_engine_dmg_R)"
+    if 550 <= capacity <= 580:
+        return "STAR", "(L:var_engineDamage_L)", "(L:var_engineDamage_R)"
     else:
         return "B60T", "(L:var_engineDamage_L)", "(L:var_engineDamage_R)"
 

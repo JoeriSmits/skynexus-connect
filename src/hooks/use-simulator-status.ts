@@ -19,6 +19,7 @@ export type SimAircraftData = {
 };
 
 type SimulatorStatus = {
+  atc_type: string;
   connected: boolean;
   aircraft: SimAircraftData | null;
   last_completed_aircraft: SimAircraftData | null;
@@ -56,9 +57,10 @@ export function useSimulatorStatus(contract: Contract) {
         // Fuel sync
         if (!lastFlight && !isTracking && !hasSetFuel && data.connected) {
           const expectedFuel = contract.aircraft_id.fuel_liters;
+          const atc_type = data.atc_type;
           const delta = Math.abs(data.aircraft.fuel_liters - expectedFuel);
           if (delta > 5) {
-            await setFuelInSim(expectedFuel);
+            await setFuelInSim(atc_type, expectedFuel);
             setHasSetFuel(true);
           }
         }
@@ -130,20 +132,60 @@ export function useSimulatorStatus(contract: Contract) {
   };
 }
 
-async function setFuelInSim(liters: number) {
+async function setFuelInSim(atc_type: string, liters: number) {
   const gallons = liters / 3.78541;
+
+  // Fuel amounts to be set
+  let leftMain = 0;
+  let rightMain = 0;
+  let leftAux = 0;
+  let rightAux = 0;
+
+  if (atc_type === "STAR") {
+    const MAIN_TANK_CAPACITY = 194.5;
+    const totalMainCapacity = MAIN_TANK_CAPACITY * 2;
+
+    if (gallons <= totalMainCapacity) {
+      // Fill main tanks only
+      leftMain = rightMain = gallons / 2;
+    } else {
+      // Fill main tanks to max, spill over to aux tanks
+      leftMain = rightMain = MAIN_TANK_CAPACITY;
+      const remaining = gallons - totalMainCapacity;
+      leftAux = rightAux = remaining / 2;
+    }
+  } else {
+    // All other aircraft: no cap, just split between main tanks
+    leftMain = rightMain = gallons / 2;
+  }
+
   try {
     await fetch("http://localhost:5051/set-simvar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ var: "A:FUEL TANK LEFT MAIN QUANTITY,Gallons", value: gallons / 2 }),
+      body: JSON.stringify({ var: "A:FUEL TANK LEFT MAIN QUANTITY,Gallons", value: leftMain }),
     });
 
     await fetch("http://localhost:5051/set-simvar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ var: "A:FUEL TANK RIGHT MAIN QUANTITY,Gallons", value: gallons / 2 }),
+      body: JSON.stringify({ var: "A:FUEL TANK RIGHT MAIN QUANTITY,Gallons", value: rightMain }),
     });
+
+    // Only STAR aircraft uses aux tanks
+    if (atc_type === "STAR") {
+      await fetch("http://localhost:5051/set-simvar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ var: "A:FUEL TANK LEFT AUX QUANTITY,Gallons", value: leftAux }),
+      });
+
+      await fetch("http://localhost:5051/set-simvar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ var: "A:FUEL TANK RIGHT AUX QUANTITY,Gallons", value: rightAux }),
+      });
+    }
 
     console.log(`✅ Set fuel to ${liters.toFixed(1)} L in sim`);
   } catch (err) {
